@@ -1,0 +1,57 @@
+.background {
+    background-image: url("../images/ground_image.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.full-height {
+    height: 100%;
+
+}
+
+.header {
+    text-align: center;
+}
+
+.form-defined 
+{
+    margin-top: 1cm;
+}
+
+.col-defined {
+    text-align: center;
+}
+
+.row-defined {
+    margin:1cm;
+}
+
+.select-defined {
+    display: block;
+    background-color:transparent !important;
+    color:black !important;
+    width: 4cm;
+    height: 1cm;
+    align-items: center;
+
+}
+
+.border {
+    margin-left: 1cm !important;
+}
+
+.output-defined {
+    display: block;
+    background-color:transparent !important;
+    color:white !important;
+    width: 6cm;
+    height: 2cm;
+    align-items: center;
+
+}
+
+
+

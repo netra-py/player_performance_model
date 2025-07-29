@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- import bootstrap css -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <!-- import custom css -->
+    {% load static %}
+    <link href="{% static 'css/predict_css.css' %}" rel="stylesheet">
+    <title>Player Performance Predictor</title>
+</head>
+<body>
+    <div class="container-fluid background" >
+        <!-- <div style="background-image: url('ground_image.png');"> -->
+        <div class = "border border-1 rounded p-4 bg-opacity-75 full-height" >
+            <h1 class="header">Welcome to the Player Performance Predictor</h1>
+            <!-- import bootstrap js -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+        <!-- </div> -->
+            <!-- start form here -->
+             
+             <form class="form-defined" method="POST"  id="prediction-form">
+                {% csrf_token %}
+                <div class="container text-center">
+                    <div class="row row-defined">
+                        <div class="col col-defined">
+                            <label for="select-innings" class="col-defined" style="text-align: center;"><b>Innings</b></label>
+                            <select name="innings" class="select-defined border border-1 rounded" style="align-items: center;" id="select-innings">
+                                <option selected>Select Innings</option>
+                                <option value="1">First</option>
+                                <option value="2">Second</option>
+
+                            </select>
+                        </div>
+
+                        <div class="col col-defined">
+                            <label for="select-venue" class="col-defined"><b>Venue</b></label>
+                            <select name="ven" class="select-defined border border-1 rounded" id="select-venue" >
+                                <option  selected>Select Venue</option>
+                                {% for venue in venues %}
+                                    
+                                    
+                                    <option  value="{{ venue.venue }}">{{ venue.venue }}</option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <div class="col col-defined">
+                            <label for="select-bat-team" class="col-defined"><b>Batting Team</b></label>
+                            <select name="bat_team" class="select-defined border border-1 rounded" id="select-bat-team">
+                                <option  selected>Select Batting Team</option>
+                                {% for team in teams %}
+                                    
+                                    
+                                    <option  value="{{ team.team_name }}">{{ team.team_name }}</option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <div class="col col-defined">
+                            <label for="select-bowl-team" class="col-defined"><b>Bowling Team</b></label>
+                            <select name="bowl_team" class="select-defined border border-1 rounded" id="select-bowl-team">
+                                <option  selected>Select Bowling Team</option>
+                                {% for team in teams %}
+                                    
+                                    
+                                    <option  value="{{ team.team_name }}">{{ team.team_name }}</option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="row row-defined">
+                        <div class="col col-defined">
+                            <label for="players_select" class="col-defined"><b>Players</b></label>
+                            <select name="player" id="players_select" class="select-defined border border-1 rounded">
+                                <option value="" disabled selected>Select Player</option>
+                            </select>
+                        </div>
+
+                        <div class="col col-defined">
+                            <label for="avg-runs" class="col-defined"><b>Career Average Runs</b></label>
+                            <input name="car_avg" class="select-defined border border-1 rounded" id="avg-runs">
+                        </div>
+                        
+                        <div class="col col-defined">
+                            <label for="strike-rate" class="col-defined"><b>Career Strike Rate</b></label>
+                            <input name="car_sr" class="select-defined border border-1 rounded" id="strike-rate">
+                        </div>
+                        
+                        <div class="col col-defined">
+                            <label for="avg-runs-last5" class="col-defined"><b>Last 5 Average Runs</b></label>
+                            <input name="last5_avg" class="select-defined border border-1 rounded" id="avg-runs-last5">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                    <div class="row row-defined text-center col-2 ">
+                        <button  type="submit" class="btn select-defined border border-1 rounded btn-sm"><b>Submit</b></button>
+                    </div>
+                    </div>
+                    </div>
+             </form>
+
+
+             
+             <div class="d-flex justify-content-center">
+                <div class="row row-defined text-center col-2 output-defined text-white border border-2 rounded" id="output"><b></b></div>
+            </div>
+            
+
+                
+        </div>
+    </div>
+
+
+
+
+<!-- JS -->
+ <!-- for filtering players -->
+<script>
+    document.getElementById('select-bat-team').addEventListener('change', function () {
+        const teamName = this.value;
+        const playerSelect = document.getElementById('players_select');
+
+        if (teamName) {
+            fetch(`/get-players/?team_name=${encodeURIComponent(teamName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    playerSelect.innerHTML = '<option value="">Select Player</option>';
+                    data.forEach(player => {
+                        const option = document.createElement('option');
+                        option.value = player.player_name;
+                        option.textContent = player.player_name;
+                        playerSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching players:', error);
+                });
+        } else {
+            playerSelect.innerHTML = '<option value="">Select Player</option>';
+        }
+    });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("prediction-form"); // add id="prediction-form" to your <form>
+    const outputDiv = document.getElementById("output");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch("{% url 'final_prediction' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result !== undefined) {
+                outputDiv.innerHTML = `<b>${data.result}</b>`;
+            } else if (data.error) {
+                outputDiv.innerHTML = `<span style="color:red;">${data.error}</span>`;
+            }
+        })
+        .catch(error => {
+            outputDiv.innerHTML = `<span style="color:red;">Error: ${error}</span>`;
+        });
+    });
+
+    // CSRF token getter
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+
+</script>
+
+</body>
+</html>
